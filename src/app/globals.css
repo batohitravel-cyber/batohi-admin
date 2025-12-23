@@ -1,0 +1,59 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 220 20% 97%;
+    --foreground: 222 47% 11%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+    --primary: 48 96% 51%;
+    --primary-foreground: 48 96% 11%;
+    --secondary: 215 28% 90%;
+    --secondary-foreground: 222 47% 11%;
+    --muted: 215 28% 93%;
+    --muted-foreground: 215 20% 45%;
+    --accent: 215 28% 90%;
+    --accent-foreground: 222 47% 11%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 220 10% 90%;
+    --input: 220 10% 92%;
+    --ring: 48 96% 51%;
+    --radius: 1rem;
+
+    --chart-1: 221 83% 53%;
+    --chart-2: 48 96% 51%;
+    --chart-3: 160 60% 45%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+    
+    --sidebar-background: 0 0% 100% / 0.8;
+    --sidebar-foreground: 222 47% 11%;
+    --sidebar-primary: 48 96% 51%;
+    --sidebar-primary-foreground: 48 96% 11%;
+    --sidebar-accent: 48 96% 51% / 0.1;
+    --sidebar-accent-foreground: 48 96% 11%;
+    --sidebar-border: 220 10% 90%;
+    --sidebar-ring: 48 96% 51%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+}
+
+@layer utilities {
+  .glass {
+    @apply bg-clip-padding backdrop-filter backdrop-blur-xl;
+  }
+}
