@@ -347,3 +347,31 @@ export async function getSystemStats() {
         return { error: 'Failed to fetch stats' };
     }
 }
+
+export async function createAdmin(data: any) {
+    try {
+        const hashedPassword = await bcrypt.hash(data.password, 10);
+
+        const { error } = await supabase.from('admins').insert([{
+            full_name: data.fullName,
+            email: data.email,
+            password: hashedPassword,
+            role: data.role,
+            status: data.status,
+            permissions: data.permissions,
+            created_at: new Date().toISOString()
+        }]);
+
+        if (error) {
+            if (error.code === '23505') {
+                return { success: false, message: 'Email already exists' };
+            }
+            throw error;
+        }
+
+        return { success: true };
+    } catch (e: any) {
+        console.error("Create admin error", e);
+        return { success: false, message: e.message };
+    }
+}
