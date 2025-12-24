@@ -132,42 +132,16 @@ const menuItems = [
       { href: '/dashboard/notifications', label: 'All Notifications' },
     ],
   },
+
   {
     icon: Siren,
     label: 'Safety',
     href: '/dashboard/safety',
   },
   {
-    icon: Route,
-    label: 'Itineraries',
-    href: '/dashboard/itineraries',
-    subItems: [
-      { href: '/dashboard/itineraries', label: 'Itinerary' },
-      { href: '/dashboard/itineraries/heatmap', label: 'Heatmap' },
-      { href: '/dashboard/itineraries/abandoned-chats', label: 'Abandoned Chats' },
-    ],
-  },
-  {
-    icon: BarChart,
-    label: 'Analytics',
-    href: '/dashboard/analytics',
-    subItems: [
-      { href: '/dashboard/analytics', label: 'Main Analytics' },
-      { href: '/dashboard/analytics/users', label: 'User Analytics' },
-      { href: '/dashboard/analytics/content', label: 'Content Analytics' },
-      { href: '/dashboard/analytics/ai', label: 'AI Analytics' },
-      { href: '/dashboard/analytics/top-places', label: 'Top Places' },
-    ],
-  },
-  {
     icon: HeartPulse,
     label: 'System',
     href: '/dashboard/system',
-    subItems: [
-      { href: '/dashboard/system/health', label: 'Health Monitor' },
-      { href: '/dashboard/system/backup', label: 'Backup & Restore' },
-      { href: '/dashboard/system/audit', label: 'Global Audit Trail' },
-    ],
   },
 ];
 
