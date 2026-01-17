@@ -1,0 +1,34 @@
+{
+  "placeholderImages": [
+    {
+      "id": "adminAvatar",
+      "description": "Avatar for the main admin user.",
+      "imageUrl": "https://images.unsplash.com/photo-1560250097-0b93528c311a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxwcm9mZXNzaW9uYWwlMjBwb3J0cmFpdHxlbnwwfHx8fDE3NjM5NzkwOTl8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "professional portrait"
+    },
+    {
+      "id": "user1",
+      "description": "Avatar for user Alia Sharma.",
+      "imageUrl": "https://images.unsplash.com/flagged/photo-1559855603-ce4c8f480d76?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHx3b21hbiUyMHNtaWxpbmd8ZW58MHx8fHwxNzYzOTE3NjMxfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "woman smiling"
+    },
+    {
+      "id": "user2",
+      "description": "Avatar for user Rohan Verma.",
+      "imageUrl": "https://images.unsplash.com/photo-1610245556359-7ba0b4b2f1b6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxtYW4lMjB0cmF2ZWx8ZW58MHx8fHwxNzYzOTY2NTY1fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "man travel"
+    },
+    {
+      "id": "user3",
+      "description": "Avatar for user Priya Singh.",
+      "imageUrl": "https://images.unsplash.com/photo-1580489944761-15a19d654956?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHx3b21hbiUyMHBvcnRyYWl0fGVufDB8fHx8MTc2Mzk1OTYyM3ww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "woman portrait"
+    },
+    {
+      "id": "user4",
+      "description": "Avatar for user Karan Mishra.",
+      "imageUrl": "https://images.unsplash.com/photo-1687092084146-a2893f0b896a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxtYW4lMjBnbGFzc2VzfGVufDB8fHx8MTc2Mzk1MjE2MHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "man glasses"
+    }
+  ]
+}
