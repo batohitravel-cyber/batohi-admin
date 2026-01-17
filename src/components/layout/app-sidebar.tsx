@@ -34,6 +34,7 @@ import {
   Settings,
   ChevronRight,
   HeartPulse,
+  Building2,
 } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
@@ -57,6 +58,16 @@ const menuItems = [
       { href: '/dashboard/places/categories', label: 'Categories' },
       { href: '/dashboard/places/media', label: 'Media Manager' },
       { href: '/dashboard/places/alerts', label: 'Place Alerts' },
+    ],
+  },
+  {
+    icon: Building2,
+    label: 'Hotels',
+    href: '/dashboard/hotels',
+    subItems: [
+      { href: '/dashboard/hotels', label: 'All Hotels' },
+      { href: '/dashboard/hotels/add', label: 'Add Hotel' },
+      { href: '/dashboard/hotels/categories', label: 'Categories' },
     ],
   },
   {
