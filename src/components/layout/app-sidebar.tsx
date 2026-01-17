@@ -35,6 +35,7 @@ import {
   ChevronRight,
   HeartPulse,
   Building2,
+  Car,
 } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
@@ -68,6 +69,17 @@ const menuItems = [
       { href: '/dashboard/hotels', label: 'All Hotels' },
       { href: '/dashboard/hotels/add', label: 'Add Hotel' },
       { href: '/dashboard/hotels/categories', label: 'Categories' },
+    ],
+  },
+  {
+    icon: Car,
+    label: 'Vehicles',
+    href: '/dashboard/vehicles',
+    subItems: [
+      { href: '/dashboard/vehicles', label: 'All Vehicles' },
+      { href: '/dashboard/vehicles/add', label: 'Add Vehicle' },
+      { href: '/dashboard/vehicles/drivers', label: 'Drivers' },
+      { href: '/dashboard/vehicles/drivers/add', label: 'Add Driver' },
     ],
   },
   {
