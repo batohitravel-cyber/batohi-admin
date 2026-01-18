@@ -26,6 +26,12 @@ import Link from 'next/link';
 import { Separator } from '@/components/ui/separator';
 import { X } from 'lucide-react';
 import Image from 'next/image';
+import dynamic from 'next/dynamic';
+
+const LocationPicker = dynamic(() => import('@/components/map/LocationPicker'), {
+  ssr: false,
+  loading: () => <div className="h-[400px] w-full bg-muted animate-pulse rounded-md flex items-center justify-center">Loading Map...</div>
+});
 
 type Category = {
   id: string;
@@ -198,7 +204,7 @@ export default function AddPlacePage() {
               required
             />
           </div>
-         
+
           <div className="grid gap-2">
             <Label htmlFor="story">Story Description</Label>
             <Textarea
@@ -224,28 +230,46 @@ export default function AddPlacePage() {
               </SelectContent>
             </Select>
           </div>
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <div className="grid gap-2">
-              <Label htmlFor="latitude">Latitude</Label>
-              <Input
-                id="latitude"
-                placeholder="e.g., 25.6213"
-                type="number"
-                step="any"
-                value={formData.latitude}
-                onChange={handleChange}
+          <div className="col-span-full">
+            <Label className="mb-2 block">Location</Label>
+            <div className="grid gap-4 p-4 border rounded-md">
+              <LocationPicker
+                onLocationSelect={(lat, lng) => {
+                  setFormData(prev => ({
+                    ...prev,
+                    latitude: lat.toString(),
+                    longitude: lng.toString()
+                  }));
+                }}
               />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="longitude">Longitude</Label>
-              <Input
-                id="longitude"
-                placeholder="e.g., 85.1384"
-                type="number"
-                step="any"
-                value={formData.longitude}
-                onChange={handleChange}
-              />
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div className="grid gap-2">
+                  <Label htmlFor="latitude">Latitude</Label>
+                  <Input
+                    id="latitude"
+                    placeholder="e.g., 25.6213"
+                    type="number"
+                    step="any"
+                    value={formData.latitude}
+                    onChange={handleChange}
+                    readOnly
+                    className="bg-muted"
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="longitude">Longitude</Label>
+                  <Input
+                    id="longitude"
+                    placeholder="e.g., 85.1384"
+                    type="number"
+                    step="any"
+                    value={formData.longitude}
+                    onChange={handleChange}
+                    readOnly
+                    className="bg-muted"
+                  />
+                </div>
+              </div>
             </div>
           </div>
         </CardContent>

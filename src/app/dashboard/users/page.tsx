@@ -50,7 +50,9 @@ import {
   UserCheck,
   Users,
   PlusCircle,
-  RefreshCw
+  PlusCircle,
+  RefreshCw,
+  Eye
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { format, parseISO, formatDistanceToNow } from 'date-fns';
@@ -68,6 +70,7 @@ export default function UsersPage() {
   const [isAddUserOpen, setIsAddUserOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isConfirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+  const [isViewOpen, setIsViewOpen] = useState(false);
 
   // Data States
   const [selectedUser, setSelectedUser] = useState<any>(null);
@@ -102,7 +105,7 @@ export default function UsersPage() {
 
   useEffect(() => {
     fetchUsers();
-    const interval = setInterval(fetchUsers, 5000); 
+    const interval = setInterval(fetchUsers, 5000);
     return () => clearInterval(interval);
   }, []);
 
@@ -135,80 +138,85 @@ export default function UsersPage() {
     toast({ title: `Email sent successfully to ${selectedUser?.email}!` });
     setIsMailOpen(false);
   };
-  
+
   const handleAddUser = async () => {
     // Basic validation
     if (!newUser.full_name || !newUser.email) {
-        toast({
-            title: "Validation Error",
-            description: "Please provide a full name and email.",
-            variant: "destructive",
-        });
-        return;
+      toast({
+        title: "Validation Error",
+        description: "Please provide a full name and email.",
+        variant: "destructive",
+      });
+      return;
     }
 
     const { data, error } = await supabase.from('mobile_app_users').insert([newUser]).select();
     if (error) {
-        toast({
-            title: "Error adding user",
-            description: error.message,
-            variant: "destructive",
-        });
+      toast({
+        title: "Error adding user",
+        description: error.message,
+        variant: "destructive",
+      });
     } else {
-        toast({
-            title: "User added successfully",
-        });
-        setIsAddUserOpen(false);
-        setNewUser({ full_name: '', email: '' });
+      toast({
+        title: "User added successfully",
+      });
+      setIsAddUserOpen(false);
+      setNewUser({ full_name: '', email: '' });
     }
-};
+  };
 
   const handleOpenEdit = (user: any) => {
     setEditingUser(user);
     setIsEditOpen(true);
   };
-  
+
   const handleEditUser = async () => {
     if (!editingUser) return;
     const { data, error } = await supabase
-        .from('mobile_app_users')
-        .update({ full_name: editingUser.full_name, avatar_url: editingUser.avatar_url })
-        .eq('id', editingUser.id)
-        .select();
+      .from('mobile_app_users')
+      .update({ full_name: editingUser.full_name, avatar_url: editingUser.avatar_url })
+      .eq('id', editingUser.id)
+      .select();
 
     if (error) {
-        toast({
-            title: "Error updating user",
-            description: error.message,
-            variant: "destructive",
-        });
-    } else {
-        toast({
-            title: "User updated successfully",
-        });
-        setIsEditOpen(false);
-        setEditingUser(null);
-    }
-};
-
-
-const handleDeleteUser = async () => {
-  if (!deletingUser) return;
-  const { error } = await supabase.from('mobile_app_users').delete().eq('id', deletingUser.id);
-  if (error) {
       toast({
-          title: "Error deleting user",
-          description: error.message,
-          variant: "destructive",
+        title: "Error updating user",
+        description: error.message,
+        variant: "destructive",
       });
-  } else {
+    } else {
       toast({
-          title: "User deleted successfully",
+        title: "User updated successfully",
+      });
+      setIsEditOpen(false);
+      setEditingUser(null);
+    }
+  };
+
+
+  const handleViewDetails = (user: any) => {
+    setSelectedUser(user);
+    setIsViewOpen(true);
+  };
+
+  const handleDeleteUser = async () => {
+    if (!deletingUser) return;
+    const { error } = await supabase.from('mobile_app_users').delete().eq('id', deletingUser.id);
+    if (error) {
+      toast({
+        title: "Error deleting user",
+        description: error.message,
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "User deleted successfully",
       });
       setConfirmDeleteOpen(false);
       setDeletingUser(null);
-  }
-};
+    }
+  };
 
   const filteredUsers = users.filter(user =>
     user.full_name?.toLowerCase().includes(search.toLowerCase()) ||
@@ -227,7 +235,7 @@ const handleDeleteUser = async () => {
             <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
           </Button>
           <Button onClick={() => setIsAddUserOpen(true)} className="flex items-center gap-2">
-            <PlusCircle className="h-4 w-4"/>
+            <PlusCircle className="h-4 w-4" />
             Add User
           </Button>
         </div>
@@ -265,7 +273,7 @@ const handleDeleteUser = async () => {
       </div>
 
       <Card className="border-none shadow-md">
-      <CardHeader className="border-b bg-muted/20 pb-4">
+        <CardHeader className="border-b bg-muted/20 pb-4">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div>
               <CardTitle>User Database</CardTitle>
@@ -348,17 +356,20 @@ const handleDeleteUser = async () => {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="w-48">
                           <DropdownMenuLabel>User Actions</DropdownMenuLabel>
+                          <DropdownMenuItem onClick={() => handleViewDetails(user)}>
+                            <Eye className="mr-2 h-4 w-4" /> View Details
+                          </DropdownMenuItem>
                           <DropdownMenuItem onClick={() => handleOpenMail(user)}>
-                             Send Email
+                            Send Email
                           </DropdownMenuItem>
                           <DropdownMenuItem onClick={() => handleOpenEdit(user)}>
-                             Edit User
+                            Edit User
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
                           <DropdownMenuItem onClick={() => handleStatusChange(user.id, user.status)} className={user.status === 'Active' ? 'text-yellow-600' : 'text-green-600'}>
                             {user.status === 'Active' ? 'Restrict' : 'Un-restrict'}
                           </DropdownMenuItem>
-                           <DropdownMenuItem onClick={() => { setDeletingUser(user); setConfirmDeleteOpen(true); }} className="text-red-500">
+                          <DropdownMenuItem onClick={() => { setDeletingUser(user); setConfirmDeleteOpen(true); }} className="text-red-500">
                             Delete User
                           </DropdownMenuItem>
                         </DropdownMenuContent>
@@ -378,64 +389,102 @@ const handleDeleteUser = async () => {
       </Dialog>
       <Dialog open={isAddUserOpen} onOpenChange={setIsAddUserOpen}>
         <DialogContent>
-            <DialogHeader>
-                <DialogTitle>Add New User</DialogTitle>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-                <Input
-                    placeholder="Full Name"
-                    value={newUser.full_name}
-                    onChange={(e) => setNewUser({ ...newUser, full_name: e.target.value })}
-                />
-                <Input
-                    placeholder="Email"
-                    value={newUser.email}
-                    onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
-                />
-            </div>
-            <DialogFooter>
-                <Button variant="outline" onClick={() => setIsAddUserOpen(false)}>Cancel</Button>
-                <Button onClick={handleAddUser}>Add User</Button>
-            </DialogFooter>
+          <DialogHeader>
+            <DialogTitle>Add New User</DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <Input
+              placeholder="Full Name"
+              value={newUser.full_name}
+              onChange={(e) => setNewUser({ ...newUser, full_name: e.target.value })}
+            />
+            <Input
+              placeholder="Email"
+              value={newUser.email}
+              onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsAddUserOpen(false)}>Cancel</Button>
+            <Button onClick={handleAddUser}>Add User</Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
       <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-          <DialogContent>
-            <DialogHeader>
-                <DialogTitle>Edit User</DialogTitle>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-                <Input
-                    placeholder="Full Name"
-                    value={editingUser?.full_name || ''}
-                    onChange={(e) => setEditingUser({ ...editingUser, full_name: e.target.value })}
-                />
-                <Input
-                    placeholder="Avatar URL"
-                    value={editingUser?.avatar_url || ''}
-                    onChange={(e) => setEditingUser({ ...editingUser, avatar_url: e.target.value })}
-                />
-            </div>
-            <DialogFooter>
-                <Button variant="outline" onClick={() => setIsEditOpen(false)}>Cancel</Button>
-                <Button onClick={handleEditUser}>Save Changes</Button>
-            </DialogFooter>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit User</DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <Input
+              placeholder="Full Name"
+              value={editingUser?.full_name || ''}
+              onChange={(e) => setEditingUser({ ...editingUser, full_name: e.target.value })}
+            />
+            <Input
+              placeholder="Avatar URL"
+              value={editingUser?.avatar_url || ''}
+              onChange={(e) => setEditingUser({ ...editingUser, avatar_url: e.target.value })}
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsEditOpen(false)}>Cancel</Button>
+            <Button onClick={handleEditUser}>Save Changes</Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
       <Dialog open={isConfirmDeleteOpen} onOpenChange={setConfirmDeleteOpen}>
         <DialogContent>
           <DialogHeader>
-              <DialogTitle>Are you sure?</DialogTitle>
-              <DialogDescription>
-                  This action cannot be undone. This will permanently delete the user account.
-              </DialogDescription>
+            <DialogTitle>Are you sure?</DialogTitle>
+            <DialogDescription>
+              This action cannot be undone. This will permanently delete the user account.
+            </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-              <Button variant="outline" onClick={() => setConfirmDeleteOpen(false)}>Cancel</Button>
-              <Button variant="destructive" onClick={handleDeleteUser}>Delete</Button>
+            <Button variant="outline" onClick={() => setConfirmDeleteOpen(false)}>Cancel</Button>
+            <Button variant="destructive" onClick={handleDeleteUser}>Delete</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+      <Dialog open={isViewOpen} onOpenChange={setIsViewOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>User Profile</DialogTitle>
+            <DialogDescription>Full details for {selectedUser?.full_name}</DialogDescription>
+          </DialogHeader>
+          {selectedUser && (
+            <div className="grid gap-4 py-4">
+              <div className="flex flex-col items-center gap-2 mb-4">
+                <Avatar className="h-20 w-20">
+                  <AvatarImage src={selectedUser.avatar_url} />
+                  <AvatarFallback className="text-xl">{selectedUser.full_name?.slice(0, 2).toUpperCase()}</AvatarFallback>
+                </Avatar>
+                <h3 className="font-bold text-xl">{selectedUser.full_name}</h3>
+                <Badge>{selectedUser.status}</Badge>
+              </div>
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div className="flex flex-col gap-1">
+                  <span className="text-muted-foreground">Email</span>
+                  <span className="font-medium">{selectedUser.email}</span>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <span className="text-muted-foreground">User ID</span>
+                  <span className="font-mono text-xs">{selectedUser.id}</span>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <span className="text-muted-foreground">Joined</span>
+                  <span>{selectedUser.created_at ? format(parseISO(selectedUser.created_at), 'PPP') : 'N/A'}</span>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <span className="text-muted-foreground">Last Seen</span>
+                  <span>{selectedUser.last_seen ? formatDistanceToNow(parseISO(selectedUser.last_seen), { addSuffix: true }) : 'Never'}</span>
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+    </div >
   );
 }

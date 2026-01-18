@@ -35,10 +35,19 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
-import { MoreHorizontal, PlusCircle, Search, Star } from 'lucide-react';
+import { MoreHorizontal, PlusCircle, Search, Star, Eye } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 // Updated type to include story
 type Place = {
@@ -52,7 +61,13 @@ type Place = {
   images: string[];
   updated_at: string;
   category_name: string | null;
-  story: string | null; // ← now included
+  story: string | null;
+  description: string | null;
+  timings: string | null;
+  ticket_price: string | null;
+  distance_from_center: string | null;
+  latitude: number | null;
+  longitude: number | null;
 };
 
 export default function PlacesPage() {
@@ -62,6 +77,14 @@ export default function PlacesPage() {
   const [filterLabel, setFilterLabel] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [uniqueCategories, setUniqueCategories] = useState<{ name: string }[]>([]);
+
+  // Delete Dialog State
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [placeToDelete, setPlaceToDelete] = useState<number | null>(null);
+
+  // View Dialog State
+  const [viewDialogOpen, setViewDialogOpen] = useState(false);
+  const [selectedPlace, setSelectedPlace] = useState<Place | null>(null);
 
   useEffect(() => {
     fetchPlaces();
@@ -85,21 +108,12 @@ export default function PlacesPage() {
     try {
       setLoading(true);
       const { data, error } = await supabase
-  .from('places')
-  .select(`
-    id,
-    name,
-    status,
-    trending,
-    unesco,
-    must_visit,
-    image_url,
-    images,
-    updated_at,
-    story,
-    categories (name)
-  `)
-  .order('created_at', { ascending: false });
+        .from('places')
+        .select(`
+          *,
+          categories (name)
+        `)
+        .order('created_at', { ascending: false });
 
       if (error) {
         console.error('Error fetching places:', error.message || error);
@@ -131,13 +145,23 @@ export default function PlacesPage() {
     }
   };
 
-  const handleDelete = async (id: number) => {
-    if (!confirm('Are you sure you want to delete this place?')) return;
+  const confirmDelete = (id: number) => {
+    setPlaceToDelete(id);
+    setDeleteDialogOpen(true);
+  };
 
-    const { error } = await supabase.from('places').delete().eq('id', id);
+  const executeDelete = async () => {
+    if (!placeToDelete) return;
+
+    const { error } = await supabase.from('places').delete().eq('id', placeToDelete);
+
     if (error) {
       alert('Error deleting place: ' + error.message);
     }
+
+    setDeleteDialogOpen(false);
+    setPlaceToDelete(null);
+    fetchPlaces(); // Refresh list
   };
 
   const filteredPlaces = places.filter(place => {
@@ -192,8 +216,7 @@ export default function PlacesPage() {
                 placeholder="Search places..."
                 className="pl-8 w-full"
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
+                onChange={(e) => setSearchQuery(e.target.value)} />
             </div>
             <div className="flex flex-1 items-center gap-2">
               <Select value={filterCategory} onValueChange={setFilterCategory}>
@@ -263,21 +286,18 @@ export default function PlacesPage() {
                         className="aspect-square rounded-md object-cover"
                         height="40"
                         src={place.images?.[0] || place.image_url || `https://picsum.photos/seed/default/40/40`}
-                        width="40"
-                      />
+                        width="40" />
                     </TableCell>
                     <TableCell className="font-medium">
                       {place.name}
                     </TableCell>
                     <TableCell>
                       <Badge
-                        variant={
-                          place.status === 'Published'
-                            ? 'default'
-                            : place.status === 'Draft'
-                              ? 'secondary'
-                              : 'destructive'
-                        }
+                        variant={place.status === 'Published'
+                          ? 'default'
+                          : place.status === 'Draft'
+                            ? 'secondary'
+                            : 'destructive'}
                       >
                         {place.status}
                       </Badge>
@@ -330,6 +350,9 @@ export default function PlacesPage() {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                          <DropdownMenuItem onSelect={(e) => { e.preventDefault(); setSelectedPlace(place); setViewDialogOpen(true); }}>
+                            <Eye className="mr-3 h-4 w-4" /> View Details
+                          </DropdownMenuItem>
                           <DropdownMenuItem asChild>
                             <Link href={`/dashboard/places/edit/${place.id}`}>Edit</Link>
                           </DropdownMenuItem>
@@ -340,7 +363,7 @@ export default function PlacesPage() {
                             <Link href="/dashboard/places/media">View Media</Link>
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
-                          <DropdownMenuItem className="text-destructive" onClick={() => handleDelete(place.id)}>
+                          <DropdownMenuItem className="text-destructive" onClick={() => confirmDelete(place.id)}>
                             Delete
                           </DropdownMenuItem>
                         </DropdownMenuContent>
@@ -353,6 +376,116 @@ export default function PlacesPage() {
           </Table>
         </CardContent>
       </Card>
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Are you sure?</DialogTitle>
+            <DialogDescription>
+              This action cannot be undone. This will permanently delete the place from the database.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
+            <Button variant="destructive" onClick={executeDelete}>Delete</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
+        <DialogContent className="sm:max-w-[600px] h-[80vh] flex flex-col p-0 overflow-hidden">
+          <DialogHeader className="px-6 py-4 border-b">
+            <DialogTitle>Place Details</DialogTitle>
+            <DialogDescription>Detailed view of {selectedPlace?.name}</DialogDescription>
+          </DialogHeader>
+          {selectedPlace && (
+            <ScrollArea className="flex-1 p-6">
+              <div className="flex flex-col gap-6">
+                {selectedPlace.image_url && (
+                  <div className="relative h-64 w-full rounded-md overflow-hidden shadow-sm">
+                    <Image
+                      src={selectedPlace.image_url}
+                      alt={selectedPlace.name}
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                )}
+
+                <div className="grid grid-cols-2 gap-x-4 gap-y-6">
+                  <div className="col-span-2 sm:col-span-1">
+                    <h4 className="font-semibold text-sm text-foreground mb-1">Name</h4>
+                    <p className="text-sm text-muted-foreground">{selectedPlace.name}</p>
+                  </div>
+                  <div className="col-span-2 sm:col-span-1">
+                    <h4 className="font-semibold text-sm text-foreground mb-1">Category</h4>
+                    <p className="text-sm text-muted-foreground">{selectedPlace.category_name}</p>
+                  </div>
+
+                  <div className="col-span-2 sm:col-span-1">
+                    <h4 className="font-semibold text-sm text-foreground mb-1">Status</h4>
+                    <Badge variant={selectedPlace.status === 'Published' ? 'default' : 'secondary'}>
+                      {selectedPlace.status}
+                    </Badge>
+                  </div>
+
+                  <div className="col-span-2 sm:col-span-1">
+                    <h4 className="font-semibold text-sm text-foreground mb-1">Labels</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {selectedPlace.trending && <Badge variant="outline" className="text-xs">Trending</Badge>}
+                      {selectedPlace.unesco && <Badge className="bg-purple-100 text-purple-700 text-xs hover:bg-purple-100">UNESCO</Badge>}
+                      {selectedPlace.must_visit && <Badge className="bg-green-100 text-green-700 text-xs hover:bg-green-100">Must Visit</Badge>}
+                      {!selectedPlace.trending && !selectedPlace.unesco && !selectedPlace.must_visit && <span className="text-sm text-muted-foreground">-</span>}
+                    </div>
+                  </div>
+
+                  {selectedPlace.description && (
+                    <div className="col-span-2">
+                      <h4 className="font-semibold text-sm text-foreground mb-1">Description</h4>
+                      <p className="text-sm text-muted-foreground leading-relaxed">
+                        {selectedPlace.description}
+                      </p>
+                    </div>
+                  )}
+
+                  {selectedPlace.story && (
+                    <div className="col-span-2">
+                      <h4 className="font-semibold text-sm text-foreground mb-1">Story</h4>
+                      <p className="text-sm text-muted-foreground leading-relaxed">
+                        {selectedPlace.story}
+                      </p>
+                    </div>
+                  )}
+
+                  <div className="col-span-2 border-t pt-4 mt-2">
+                    <h4 className="font-semibold text-base text-foreground mb-3">Additional Information</h4>
+                  </div>
+
+                  <div className="col-span-2 sm:col-span-1">
+                    <h4 className="font-semibold text-sm text-foreground mb-1">Timings</h4>
+                    <p className="text-sm text-muted-foreground">{selectedPlace.timings || 'N/A'}</p>
+                  </div>
+                  <div className="col-span-2 sm:col-span-1">
+                    <h4 className="font-semibold text-sm text-foreground mb-1">Ticket Price</h4>
+                    <p className="text-sm text-muted-foreground">{selectedPlace.ticket_price || 'N/A'}</p>
+                  </div>
+                  <div className="col-span-2 sm:col-span-1">
+                    <h4 className="font-semibold text-sm text-foreground mb-1">Distance from Center</h4>
+                    <p className="text-sm text-muted-foreground">{selectedPlace.distance_from_center || 'N/A'}</p>
+                  </div>
+                  <div className="col-span-2 sm:col-span-1">
+                    <h4 className="font-semibold text-sm text-foreground mb-1">Coordinates</h4>
+                    <p className="text-sm text-muted-foreground">
+                      {selectedPlace.latitude && selectedPlace.longitude
+                        ? `${selectedPlace.latitude}, ${selectedPlace.longitude}`
+                        : 'N/A'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </ScrollArea>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

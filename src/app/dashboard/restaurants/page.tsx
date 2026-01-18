@@ -34,14 +34,28 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
-import { MoreHorizontal, PlusCircle, Search, Star, Loader2 } from 'lucide-react';
+import { MoreHorizontal, PlusCircle, Search, Star, Loader2, Eye } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 
 export default function RestaurantsPage() {
   const [restaurants, setRestaurants] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+
+  // Dialog State
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [restaurantToDelete, setRestaurantToDelete] = useState<string | null>(null);
+  const [viewDialogOpen, setViewDialogOpen] = useState(false);
+  const [selectedRestaurant, setSelectedRestaurant] = useState<any>(null);
 
   // Fetch Data
   const fetchRestaurants = async () => {
@@ -72,10 +86,24 @@ export default function RestaurantsPage() {
     return () => { supabase.removeChannel(channel); };
   }, []);
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this restaurant?')) return;
-    const { error } = await supabase.from('restaurants').delete().eq('id', id);
-    if (error) alert(error.message);
+  const confirmDelete = (id: string) => {
+    setRestaurantToDelete(id);
+    setDeleteDialogOpen(true);
+  };
+
+  const executeDelete = async () => {
+    if (!restaurantToDelete) return;
+
+    const { error } = await supabase.from('restaurants').delete().eq('id', restaurantToDelete);
+
+    if (error) {
+      alert(error.message);
+    } else {
+      fetchRestaurants(); // Refresh
+    }
+
+    setDeleteDialogOpen(false);
+    setRestaurantToDelete(null);
   };
 
   const renderStars = (rating: number) => {
@@ -199,10 +227,13 @@ export default function RestaurantsPage() {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                          <DropdownMenuItem onClick={() => { setSelectedRestaurant(restaurant); setViewDialogOpen(true); }}>
+                            <Eye className="mr-2 h-4 w-4" /> View Details
+                          </DropdownMenuItem>
                           <DropdownMenuItem asChild>
                             <Link href={`/dashboard/restaurants/edit/${restaurant.id}`}>Edit</Link>
                           </DropdownMenuItem>
-                          <DropdownMenuItem className="text-destructive" onClick={() => handleDelete(restaurant.id)}>Delete</DropdownMenuItem>
+                          <DropdownMenuItem className="text-destructive" onClick={() => confirmDelete(restaurant.id)}>Delete</DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </TableCell>
@@ -213,6 +244,67 @@ export default function RestaurantsPage() {
           </Table>
         </CardContent>
       </Card>
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Are you sure?</DialogTitle>
+            <DialogDescription>
+              This action cannot be undone. This will permanently delete the restaurant from the system.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
+            <Button variant="destructive" onClick={executeDelete}>Delete</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Restaurant Details</DialogTitle>
+            <DialogDescription>{selectedRestaurant?.name}</DialogDescription>
+          </DialogHeader>
+          {selectedRestaurant && (
+            <div className="grid gap-4 py-4">
+              {selectedRestaurant.images && selectedRestaurant.images.length > 0 && (
+                <div className="relative h-48 w-full rounded-md overflow-hidden">
+                  <Image
+                    src={selectedRestaurant.images[0]}
+                    alt={selectedRestaurant.name}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+              )}
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <h4 className="font-semibold text-foreground">Rating</h4>
+                  <div className="flex items-center gap-1">
+                    <Star className="h-3 w-3 fill-yellow-500 text-yellow-500" />
+                    <span>{selectedRestaurant.rating}</span>
+                  </div>
+                </div>
+                <div>
+                  <h4 className="font-semibold text-foreground">Price Category</h4>
+                  <Badge variant="outline">{selectedRestaurant.price_category}</Badge>
+                </div>
+                <div className="col-span-2">
+                  <h4 className="font-semibold text-foreground">Address</h4>
+                  <p className="text-muted-foreground">{selectedRestaurant.address}</p>
+                </div>
+                <div className="col-span-2">
+                  <h4 className="font-semibold text-foreground">Must Try Dishes</h4>
+                  <p className="text-muted-foreground">
+                    {selectedRestaurant.must_try_dishes && Array.isArray(selectedRestaurant.must_try_dishes)
+                      ? selectedRestaurant.must_try_dishes.join(', ')
+                      : '-'}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -23,6 +23,12 @@ import {
 } from '@/components/ui/select';
 import Link from 'next/link';
 import { Loader2, UploadCloud } from 'lucide-react';
+import dynamic from 'next/dynamic';
+
+const LocationPicker = dynamic(() => import('@/components/map/LocationPicker'), {
+  ssr: false,
+  loading: () => <div className="h-[400px] w-full bg-muted animate-pulse rounded-md flex items-center justify-center">Loading Map...</div>
+});
 
 export default function AddRestaurantPage() {
   const router = useRouter();
@@ -149,24 +155,39 @@ export default function AddRestaurantPage() {
                   onChange={(e) => setAddress(e.target.value)}
                 />
               </div>
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <div className="grid gap-2">
-                  <Label htmlFor="latitude">Latitude</Label>
-                  <Input
-                    id="latitude"
-                    placeholder="e.g., 25.6096"
-                    value={latitude}
-                    onChange={(e) => setLatitude(e.target.value)}
+              <div className="col-span-full">
+                <Label className="mb-2 block">Location</Label>
+                <div className="grid gap-4 p-4 border rounded-md">
+                  <LocationPicker
+                    onLocationSelect={(lat, lng) => {
+                      setLatitude(lat.toString());
+                      setLongitude(lng.toString());
+                    }}
                   />
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="longitude">Longitude</Label>
-                  <Input
-                    id="longitude"
-                    placeholder="e.g., 85.1235"
-                    value={longitude}
-                    onChange={(e) => setLongitude(e.target.value)}
-                  />
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                    <div className="grid gap-2">
+                      <Label htmlFor="latitude">Latitude</Label>
+                      <Input
+                        id="latitude"
+                        placeholder="e.g., 25.6096"
+                        value={latitude}
+                        onChange={(e) => setLatitude(e.target.value)}
+                        readOnly
+                        className="bg-muted"
+                      />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="longitude">Longitude</Label>
+                      <Input
+                        id="longitude"
+                        placeholder="e.g., 85.1235"
+                        value={longitude}
+                        onChange={(e) => setLongitude(e.target.value)}
+                        readOnly
+                        className="bg-muted"
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
               <div className="grid gap-2">

@@ -25,6 +25,12 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft, Loader2 } from 'lucide-react';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
+
+const LocationPicker = dynamic(() => import('@/components/map/LocationPicker'), {
+    ssr: false,
+    loading: () => <div className="h-[400px] w-full bg-muted animate-pulse rounded-md flex items-center justify-center">Loading Map...</div>
+});
 
 export default function AddHotelPage() {
     const router = useRouter();
@@ -47,6 +53,8 @@ export default function AddHotelPage() {
         status: 'Draft',
         amenities: '', // Comma separated
         images: '', // Comma separated URLs
+        latitude: '',
+        longitude: '',
     });
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -73,6 +81,8 @@ export default function AddHotelPage() {
                 star_rating: parseInt(String(formData.star_rating)),
                 amenities: amenitiesArray,
                 images: imagesArray,
+                latitude: formData.latitude ? parseFloat(formData.latitude) : null,
+                longitude: formData.longitude ? parseFloat(formData.longitude) : null,
             };
 
             const result = await createHotel(hotelData);
@@ -281,6 +291,48 @@ export default function AddHotelPage() {
                                     name="country"
                                     value={formData.country}
                                     onChange={handleChange}
+                                />
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
+
+                <Card className="mt-6">
+                    <CardHeader>
+                        <CardTitle>Map Location</CardTitle>
+                        <CardDescription>Search and select the hotel location using OpenStreetMap.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <LocationPicker
+                            onLocationSelect={(lat, lng) => {
+                                setFormData(prev => ({
+                                    ...prev,
+                                    latitude: lat.toString(),
+                                    longitude: lng.toString()
+                                }));
+                            }}
+                        />
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="latitude">Latitude</Label>
+                                <Input
+                                    id="latitude"
+                                    name="latitude"
+                                    value={formData.latitude}
+                                    onChange={handleChange}
+                                    readOnly
+                                    className="bg-muted"
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="longitude">Longitude</Label>
+                                <Input
+                                    id="longitude"
+                                    name="longitude"
+                                    value={formData.longitude}
+                                    onChange={handleChange}
+                                    readOnly
+                                    className="bg-muted"
                                 />
                             </div>
                         </div>

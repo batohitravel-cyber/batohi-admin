@@ -30,7 +30,9 @@ import {
   ShieldCheck,
   Download,
   FileText,
-  Activity
+  FileText,
+  Activity,
+  Eye
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { format, parseISO, formatDistanceToNow } from 'date-fns';
@@ -283,11 +285,13 @@ function AdminTable({ admins, loading, onViewDetails }: { admins: any[], loading
             </TableCell>
             <TableCell className="text-right">
               <Button
-                size="sm"
-                className="bg-red-500 hover:bg-red-600 text-white shadow-red-200 shadow-md"
+                size="icon"
+                variant="ghost"
+                className="text-muted-foreground hover:text-foreground"
                 onClick={() => onViewDetails(admin)}
               >
-                Details
+                <Eye className="h-4 w-4" />
+                <span className="sr-only">View Details</span>
               </Button>
             </TableCell>
           </TableRow>

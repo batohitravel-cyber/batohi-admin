@@ -44,7 +44,8 @@ import {
     Building2,
     MapPin,
     Star,
-    DollarSign
+    DollarSign,
+    Eye
 } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
@@ -64,6 +65,8 @@ export default function HotelsPage() {
     // Dialog States
     const [isConfirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
     const [deletingHotel, setDeletingHotel] = useState<any>(null);
+    const [viewDialogOpen, setViewDialogOpen] = useState(false);
+    const [selectedHotel, setSelectedHotel] = useState<any>(null);
 
     const fetchHotels = async () => {
         setLoading(true);
@@ -223,6 +226,9 @@ export default function HotelsPage() {
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent align="end" className="w-48">
                                                     <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                                    <DropdownMenuItem onClick={() => { setSelectedHotel(hotel); setViewDialogOpen(true); }}>
+                                                        <Eye className="mr-2 h-4 w-4" /> View Details
+                                                    </DropdownMenuItem>
                                                     <DropdownMenuItem asChild>
                                                         <Link href={`/dashboard/hotels/${hotel.id}`}>Edit Details</Link>
                                                     </DropdownMenuItem>
@@ -255,6 +261,60 @@ export default function HotelsPage() {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
-        </div>
+
+            <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
+                <DialogContent className="sm:max-w-[500px]">
+                    <DialogHeader>
+                        <DialogTitle>Hotel Details</DialogTitle>
+                        <DialogDescription>
+                            {selectedHotel?.name}
+                        </DialogDescription>
+                    </DialogHeader>
+                    {selectedHotel && (
+                        <div className="grid gap-4 py-4">
+                            {selectedHotel.images && selectedHotel.images.length > 0 && (
+                                <div className="relative h-48 w-full rounded-md overflow-hidden">
+                                    <Image
+                                        src={selectedHotel.images[0]}
+                                        alt={selectedHotel.name}
+                                        fill
+                                        className="object-cover"
+                                    />
+                                </div>
+                            )}
+                            <div className="grid grid-cols-2 gap-4 text-sm">
+                                <div>
+                                    <h4 className="font-semibold text-foreground">Type</h4>
+                                    <p className="text-muted-foreground">{selectedHotel.hotel_type}</p>
+                                </div>
+                                <div>
+                                    <h4 className="font-semibold text-foreground">Rating</h4>
+                                    <div className="flex items-center gap-1">
+                                        <Star className="h-3 w-3 fill-yellow-500 text-yellow-500" />
+                                        <span>{selectedHotel.star_rating} Stars</span>
+                                    </div>
+                                </div>
+                                <div className="col-span-2">
+                                    <h4 className="font-semibold text-foreground">Address</h4>
+                                    <p className="text-muted-foreground">{selectedHotel.address}, {selectedHotel.city}, {selectedHotel.state}</p>
+                                </div>
+                                <div className="col-span-2">
+                                    <h4 className="font-semibold text-foreground">Price Per Night</h4>
+                                    <p className="text-muted-foreground font-mono">{selectedHotel.price_per_night}</p>
+                                </div>
+                                <div className="col-span-2">
+                                    <h4 className="font-semibold text-foreground">Amenities</h4>
+                                    <div className="flex flex-wrap gap-1 mt-1">
+                                        {selectedHotel.amenities && Array.isArray(selectedHotel.amenities) ? selectedHotel.amenities.map((am: string) => (
+                                            <Badge key={am} variant="secondary" className="text-xs">{am}</Badge>
+                                        )) : <span className="text-muted-foreground">-</span>}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </DialogContent>
+            </Dialog>
+        </div >
     );
 }
