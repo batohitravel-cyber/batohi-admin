@@ -350,7 +350,13 @@ export default function PlacesPage() {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                          <DropdownMenuItem onSelect={(e) => { e.preventDefault(); setSelectedPlace(place); setViewDialogOpen(true); }}>
+                          <DropdownMenuItem onSelect={(e) => {
+                            e.preventDefault();
+                            setTimeout(() => {
+                              setSelectedPlace(place);
+                              setViewDialogOpen(true);
+                            }, 0);
+                          }}>
                             <Eye className="mr-3 h-4 w-4" /> View Details
                           </DropdownMenuItem>
                           <DropdownMenuItem asChild>
@@ -391,7 +397,10 @@ export default function PlacesPage() {
         </DialogContent>
       </Dialog>
 
-      <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
+      <Dialog open={viewDialogOpen} onOpenChange={(open) => {
+        setViewDialogOpen(open);
+        if (!open) window.location.reload();
+      }}>
         <DialogContent className="sm:max-w-[600px] h-[80vh] flex flex-col p-0 overflow-hidden">
           <DialogHeader className="px-6 py-4 border-b">
             <DialogTitle>Place Details</DialogTitle>

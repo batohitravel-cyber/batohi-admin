@@ -30,7 +30,6 @@ import {
   ShieldCheck,
   Download,
   FileText,
-  FileText,
   Activity,
   Eye
 } from 'lucide-react';
@@ -197,8 +196,12 @@ export default function AdminsDashboardPage() {
         </TabsContent>
       </Tabs>
 
-      {/* Admin Details Dialog */}
-      <Dialog open={!!selectedAdmin} onOpenChange={(open) => !open && setSelectedAdmin(null)}>
+      <Dialog open={!!selectedAdmin} onOpenChange={(open) => {
+        if (!open) {
+          setSelectedAdmin(null);
+          window.location.reload();
+        }
+      }}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>Admin Profile</DialogTitle>

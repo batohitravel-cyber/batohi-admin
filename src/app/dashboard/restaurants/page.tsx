@@ -227,8 +227,14 @@ export default function RestaurantsPage() {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                          <DropdownMenuItem onClick={() => { setSelectedRestaurant(restaurant); setViewDialogOpen(true); }}>
-                            <Eye className="mr-2 h-4 w-4" /> View Details
+                          <DropdownMenuItem onSelect={(e) => {
+                            e.preventDefault();
+                            setTimeout(() => {
+                              setSelectedRestaurant(restaurant);
+                              setViewDialogOpen(true);
+                            }, 0);
+                          }}>
+                            <Eye className="mr-3 h-4 w-4" /> View Details
                           </DropdownMenuItem>
                           <DropdownMenuItem asChild>
                             <Link href={`/dashboard/restaurants/edit/${restaurant.id}`}>Edit</Link>
@@ -258,7 +264,10 @@ export default function RestaurantsPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
+      <Dialog open={viewDialogOpen} onOpenChange={(open) => {
+        setViewDialogOpen(open);
+        if (!open) window.location.reload();
+      }}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
             <DialogTitle>Restaurant Details</DialogTitle>

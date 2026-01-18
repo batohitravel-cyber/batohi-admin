@@ -355,8 +355,14 @@ export default function UsersPage() {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="w-48">
                           <DropdownMenuLabel>User Actions</DropdownMenuLabel>
-                          <DropdownMenuItem onClick={() => handleViewDetails(user)}>
-                            <Eye className="mr-2 h-4 w-4" /> View Details
+                          <DropdownMenuItem onSelect={(e) => {
+                            e.preventDefault();
+                            setTimeout(() => {
+                              setSelectedUser(user);
+                              setIsViewOpen(true);
+                            }, 0);
+                          }}>
+                            <Eye className="mr-3 h-4 w-4" /> View Details
                           </DropdownMenuItem>
                           <DropdownMenuItem onClick={() => handleOpenMail(user)}>
                             Send Email
@@ -446,7 +452,10 @@ export default function UsersPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      <Dialog open={isViewOpen} onOpenChange={setIsViewOpen}>
+      <Dialog open={isViewOpen} onOpenChange={(open) => {
+        setIsViewOpen(open);
+        if (!open) window.location.reload();
+      }}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>User Profile</DialogTitle>
