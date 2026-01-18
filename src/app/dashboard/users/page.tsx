@@ -50,7 +50,6 @@ import {
   UserCheck,
   Users,
   PlusCircle,
-  PlusCircle,
   RefreshCw,
   Eye
 } from 'lucide-react';
