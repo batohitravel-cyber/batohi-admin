@@ -14,10 +14,11 @@ create table if not exists public.places (
   unesco boolean default false,
   must_visit boolean default false,
   
-  -- Quick Facts
-  timings text,
-  ticket_price text,
   distance_from_center text,
+
+  -- Address Details (JSONB)
+  -- Structure: { "full": "...", "city": "...", "state": "...", "pincode": "..." }
+  address jsonb,
   
   created_at timestamp with time zone default timezone('utc'::text, now()) not null,
   updated_at timestamp with time zone default timezone('utc'::text, now()) not null

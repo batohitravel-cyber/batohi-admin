@@ -38,6 +38,7 @@ import { Input } from '@/components/ui/input';
 import { MoreHorizontal, PlusCircle, Search, Play, Pause, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import BulkImportDialog from '@/components/bulk-import/BulkImportDialog';
 
 type AudioStory = {
   id: string;
@@ -187,6 +188,7 @@ export default function AudioStoriesPage() {
           <Button variant="outline" onClick={() => fetchStories()} disabled={loading}>
             {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Refresh List'}
           </Button>
+          <BulkImportDialog configKey="audio_stories" onSuccess={fetchStories} />
           <Button asChild>
             <Link href="/dashboard/audio/upload">
               <PlusCircle className="mr-2 h-4 w-4" /> Upload New Story

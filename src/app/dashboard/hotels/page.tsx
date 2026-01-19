@@ -51,6 +51,7 @@ import { format, parseISO } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
 import Image from 'next/image';
+import BulkImportDialog from '@/components/bulk-import/BulkImportDialog';
 
 export default function HotelsPage() {
     const [hotels, setHotels] = useState<any[]>([]);
@@ -121,6 +122,7 @@ export default function HotelsPage() {
                     <Button onClick={fetchHotels} variant="outline" size="sm">
                         <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
                     </Button>
+                    <BulkImportDialog configKey="hotels" onSuccess={fetchHotels} />
                     <Link href="/dashboard/hotels/add">
                         <Button className="flex items-center gap-2">
                             <PlusCircle className="h-4 w-4" />

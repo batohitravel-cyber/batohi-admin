@@ -46,6 +46,10 @@ export default function EditPlacePage(props: { params: Promise<{ id: string }> }
     timings: '',
     ticket_price: '',
     distance_from_center: '',
+    address: '',
+    city: '',
+    state: '',
+    pincode: '',
     must_visit: false,
     trending: false,
     unesco: false,
@@ -98,6 +102,13 @@ export default function EditPlacePage(props: { params: Promise<{ id: string }> }
         timings: data.timings || '',
         ticket_price: data.ticket_price || '',
         distance_from_center: data.distance_from_center || '',
+
+        // Unpack Address JSONB
+        address: data.address?.full || '',
+        city: data.address?.city || '',
+        state: data.address?.state || '',
+        pincode: data.address?.pincode || '',
+
         must_visit: data.must_visit || false,
         trending: data.trending || false,
         unesco: data.unesco || false,
@@ -181,12 +192,29 @@ export default function EditPlacePage(props: { params: Promise<{ id: string }> }
       const { error } = await supabase
         .from('places')
         .update({
-          ...formData,
+          name: formData.name,
+          description: formData.description,
+          story: formData.story,
+          category_id: formData.category_id,
           latitude: formData.latitude ? parseFloat(formData.latitude) : null,
           longitude: formData.longitude ? parseFloat(formData.longitude) : null,
+          timings: formData.timings,
+          ticket_price: formData.ticket_price,
+          distance_from_center: formData.distance_from_center,
+          must_visit: formData.must_visit,
+          trending: formData.trending,
+          unesco: formData.unesco,
+          status: formData.status,
           images: images,
           videos: videos,
           image_url: images.length > 0 ? images[0] : null,
+          // Pack Address JSONB
+          address: {
+            full: formData.address,
+            city: formData.city,
+            state: formData.state,
+            pincode: formData.pincode
+          },
           updated_at: new Date().toISOString(),
         })
         .eq('id', id);
@@ -271,6 +299,50 @@ export default function EditPlacePage(props: { params: Promise<{ id: string }> }
             <div className="grid gap-2">
               <Label htmlFor="longitude">Longitude</Label>
               <Input id="longitude" value={formData.longitude} onChange={handleChange} />
+            </div>
+          </div>
+
+          <Separator />
+
+          {/* Address Fields */}
+          <div className="grid gap-4">
+            <div className="grid gap-2">
+              <Label htmlFor="address">Full Address</Label>
+              <Input
+                id="address"
+                placeholder="e.g., 123 Main St, Patna"
+                value={formData.address}
+                onChange={handleChange}
+              />
+            </div>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+              <div className="grid gap-2">
+                <Label htmlFor="city">City</Label>
+                <Input
+                  id="city"
+                  placeholder="e.g., Patna"
+                  value={formData.city}
+                  onChange={handleChange}
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="state">State</Label>
+                <Input
+                  id="state"
+                  placeholder="e.g., Bihar"
+                  value={formData.state}
+                  onChange={handleChange}
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="pincode">Pincode</Label>
+                <Input
+                  id="pincode"
+                  placeholder="e.g., 800001"
+                  value={formData.pincode}
+                  onChange={handleChange}
+                />
+              </div>
             </div>
           </div>
         </CardContent>
@@ -394,6 +466,6 @@ export default function EditPlacePage(props: { params: Promise<{ id: string }> }
           {saving ? 'Updating...' : 'Update Place'}
         </Button>
       </div>
-    </div>
+    </div >
   );
 }

@@ -49,13 +49,14 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
+import BulkImportDialog from '@/components/bulk-import/BulkImportDialog';
 
 export default function VehiclesPage() {
   const [vehicles, setVehicles] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const { toast } = useToast();
-  
+
   // Pagination
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -67,7 +68,7 @@ export default function VehiclesPage() {
   const fetchVehicles = async () => {
     setLoading(true);
     const result = await getVehicles(page, 10, search);
-    
+
     if (result.error) {
       toast({
         title: 'Error fetching vehicles',
@@ -83,13 +84,13 @@ export default function VehiclesPage() {
 
   useEffect(() => {
     fetchVehicles();
-  }, [page, search]); 
+  }, [page, search]);
 
   const handleDeleteVehicle = async () => {
     if (!deletingVehicle) return;
-    
+
     const result = await deleteVehicle(deletingVehicle.id);
-    
+
     if (result.success) {
       toast({
         title: "Vehicle deleted successfully",
@@ -117,9 +118,10 @@ export default function VehiclesPage() {
           <Button onClick={fetchVehicles} variant="outline" size="sm">
             <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
           </Button>
+          <BulkImportDialog configKey="vehicles" onSuccess={fetchVehicles} />
           <Link href="/dashboard/vehicles/add">
             <Button className="flex items-center gap-2">
-              <PlusCircle className="h-4 w-4"/>
+              <PlusCircle className="h-4 w-4" />
               Add Vehicle
             </Button>
           </Link>
@@ -174,7 +176,7 @@ export default function VehiclesPage() {
                     <TableCell className="pl-6 py-3">
                       <div className="flex items-center gap-3">
                         <div className="h-10 w-10 flex items-center justify-center rounded-md border bg-muted/50">
-                            <Car className="h-6 w-6 text-primary" />
+                          <Car className="h-6 w-6 text-primary" />
                         </div>
                         <div>
                           <p className="font-semibold text-sm text-foreground">{vehicle.vehicle_name}</p>
@@ -188,24 +190,24 @@ export default function VehiclesPage() {
                       </Badge>
                     </TableCell>
                     <TableCell>
-                        <span className="font-mono text-xs bg-muted px-2 py-1 rounded">{vehicle.registration_number}</span>
+                      <span className="font-mono text-xs bg-muted px-2 py-1 rounded">{vehicle.registration_number}</span>
                     </TableCell>
                     <TableCell>
-                        <div className="flex flex-col text-xs text-muted-foreground">
-                            <span>{vehicle.seating_capacity} Seats</span>
-                            <span>{vehicle.fuel_type || 'N/A'}</span>
-                        </div>
+                      <div className="flex flex-col text-xs text-muted-foreground">
+                        <span>{vehicle.seating_capacity} Seats</span>
+                        <span>{vehicle.fuel_type || 'N/A'}</span>
+                      </div>
                     </TableCell>
                     <TableCell>
-                        <div className="font-medium text-sm">
-                             ₹{vehicle.price_per_km}
-                        </div>
+                      <div className="font-medium text-sm">
+                        ₹{vehicle.price_per_km}
+                      </div>
                     </TableCell>
                     <TableCell>
-                      <Badge 
-                        variant={vehicle.availability_status === 'available' ? 'default' : 'secondary'} 
-                        className={cn("uppercase text-[10px]", 
-                            vehicle.availability_status === 'available' ? 'bg-green-600 hover:bg-green-700' : 
+                      <Badge
+                        variant={vehicle.availability_status === 'available' ? 'default' : 'secondary'}
+                        className={cn("uppercase text-[10px]",
+                          vehicle.availability_status === 'available' ? 'bg-green-600 hover:bg-green-700' :
                             vehicle.availability_status === 'maintenance' ? 'bg-red-500 hover:bg-red-600' : ''
                         )}
                       >
@@ -222,10 +224,10 @@ export default function VehiclesPage() {
                         <DropdownMenuContent align="end" className="w-48">
                           <DropdownMenuLabel>Actions</DropdownMenuLabel>
                           <DropdownMenuItem asChild>
-                             <Link href={`/dashboard/vehicles/${vehicle.id}`}>Edit Details</Link>
+                            <Link href={`/dashboard/vehicles/${vehicle.id}`}>Edit Details</Link>
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
-                           <DropdownMenuItem onClick={() => { setDeletingVehicle(vehicle); setConfirmDeleteOpen(true); }} className="text-red-500">
+                          <DropdownMenuItem onClick={() => { setDeletingVehicle(vehicle); setConfirmDeleteOpen(true); }} className="text-red-500">
                             Delete Vehicle
                           </DropdownMenuItem>
                         </DropdownMenuContent>
@@ -242,14 +244,14 @@ export default function VehiclesPage() {
       <Dialog open={isConfirmDeleteOpen} onOpenChange={setConfirmDeleteOpen}>
         <DialogContent>
           <DialogHeader>
-              <DialogTitle>Are you sure?</DialogTitle>
-              <DialogDescription>
-                  This action cannot be undone. This will permanently delete the vehicle listing.
-              </DialogDescription>
+            <DialogTitle>Are you sure?</DialogTitle>
+            <DialogDescription>
+              This action cannot be undone. This will permanently delete the vehicle listing.
+            </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-              <Button variant="outline" onClick={() => setConfirmDeleteOpen(false)}>Cancel</Button>
-              <Button variant="destructive" onClick={handleDeleteVehicle}>Delete</Button>
+            <Button variant="outline" onClick={() => setConfirmDeleteOpen(false)}>Cancel</Button>
+            <Button variant="destructive" onClick={handleDeleteVehicle}>Delete</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

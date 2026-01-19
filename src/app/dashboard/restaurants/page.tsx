@@ -45,6 +45,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import BulkImportDialog from '@/components/bulk-import/BulkImportDialog';
 
 export default function RestaurantsPage() {
   const [restaurants, setRestaurants] = useState<any[]>([]);
@@ -135,6 +136,7 @@ export default function RestaurantsPage() {
           <Button variant="outline" onClick={fetchRestaurants} disabled={loading}>
             {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Refresh"}
           </Button>
+          <BulkImportDialog configKey="restaurants" onSuccess={fetchRestaurants} />
           <Button asChild>
             <Link href="/dashboard/restaurants/add">
               <PlusCircle className="mr-2 h-4 w-4" /> Add New Restaurant

@@ -48,6 +48,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import BulkImportDialog from '@/components/bulk-import/BulkImportDialog';
 
 // Updated type to include story
 type Place = {
@@ -68,6 +69,7 @@ type Place = {
   distance_from_center: string | null;
   latitude: number | null;
   longitude: number | null;
+  address: any | null; // JSONB
 };
 
 export default function PlacesPage() {
@@ -196,11 +198,14 @@ export default function PlacesPage() {
             Manage your places and attractions here.
           </p>
         </div>
-        <Button asChild>
-          <Link href="/dashboard/places/add">
-            <PlusCircle className="mr-2 h-4 w-4" /> Add New Place
-          </Link>
-        </Button>
+        <div className="flex gap-2">
+          <BulkImportDialog configKey="places" onSuccess={fetchPlaces} />
+          <Button asChild>
+            <Link href="/dashboard/places/add">
+              <PlusCircle className="mr-2 h-4 w-4" /> Add New Place
+            </Link>
+          </Button>
+        </div>
       </div>
 
       <Card>
@@ -257,8 +262,8 @@ export default function PlacesPage() {
                 <TableHead>Status</TableHead>
                 <TableHead className="hidden md:table-cell">Category</TableHead>
                 <TableHead>Labels</TableHead>
-                {/* 👇 NEW STORY COLUMN */}
-                <TableHead className="hidden md:table-cell">Story Preview</TableHead>
+                {/* 👇 NEW ADDRESS COLUMN (Replaces Story Preview) */}
+                <TableHead className="hidden md:table-cell">Address</TableHead>
                 <TableHead>
                   <span className="sr-only">Actions</span>
                 </TableHead>
@@ -321,20 +326,14 @@ export default function PlacesPage() {
                         )}
                       </div>
                     </TableCell>
-                    {/* 👇 STORY PREVIEW WITH TOOLTIP */}
+                    {/* 👇 ADDRESS DISPLAY */}
                     <TableCell className="hidden md:table-cell">
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <span className="block max-w-[200px] truncate text-sm text-gray-600">
-                              {truncateStory(place.story)}
-                            </span>
-                          </TooltipTrigger>
-                          <TooltipContent side="top" className="max-w-xs">
-                            <p>{place.story || 'No story provided.'}</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
+                      <span className="block max-w-[200px] truncate text-sm text-gray-600">
+                        {place.address?.full || '—'}
+                      </span>
+                      <span className="block text-xs text-muted-foreground">
+                        {[place.address?.city, place.address?.state, place.address?.pincode].filter(Boolean).join(', ')}
+                      </span>
                     </TableCell>
                     <TableCell>
                       <DropdownMenu>

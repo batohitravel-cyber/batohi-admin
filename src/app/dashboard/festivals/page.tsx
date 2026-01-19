@@ -42,6 +42,7 @@ import {
 import Link from 'next/link';
 import { format, parseISO, isSameDay, isAfter, isBefore } from 'date-fns';
 import { Calendar } from '@/components/ui/calendar';
+import BulkImportDialog from '@/components/bulk-import/BulkImportDialog';
 
 export default function FestivalsListPage() {
   const [festivals, setFestivals] = useState<any[]>([]);
@@ -103,11 +104,14 @@ export default function FestivalsListPage() {
           <h1 className="text-3xl font-bold tracking-tight text-foreground">Festivals & Events</h1>
           <p className="text-muted-foreground">Curate and manage cultural celebrations.</p>
         </div>
-        <Button asChild className="bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/20 transition-all">
-          <Link href="/dashboard/festivals/add">
-            <PlusCircle className="mr-2 h-5 w-5" /> Add New Festival
-          </Link>
-        </Button>
+        <div className="flex items-center gap-2">
+          <BulkImportDialog configKey="festivals" onSuccess={fetchFestivals} />
+          <Button asChild className="bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/20 transition-all">
+            <Link href="/dashboard/festivals/add">
+              <PlusCircle className="mr-2 h-5 w-5" /> Add New Festival
+            </Link>
+          </Button>
+        </div>
       </div>
 
       {/* Stats Cards */}

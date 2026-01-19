@@ -56,6 +56,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { format, parseISO, formatDistanceToNow } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
+import BulkImportDialog from '@/components/bulk-import/BulkImportDialog';
 
 export default function UsersPage() {
   const [users, setUsers] = useState<any[]>([]);
@@ -233,6 +234,7 @@ export default function UsersPage() {
           <Button onClick={fetchUsers} variant="outline" size="sm">
             <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
           </Button>
+          <BulkImportDialog configKey="users" onSuccess={fetchUsers} />
           <Button onClick={() => setIsAddUserOpen(true)} className="flex items-center gap-2">
             <PlusCircle className="h-4 w-4" />
             Add User

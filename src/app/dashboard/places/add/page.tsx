@@ -52,6 +52,10 @@ export default function AddPlacePage() {
     timings: '',
     ticket_price: '',
     distance_from_center: '',
+    address: '',
+    city: '',
+    state: '',
+    pincode: '',
     must_visit: false,
     trending: false,
     unesco: false,
@@ -151,12 +155,29 @@ export default function AddPlacePage() {
 
       const { error } = await supabase.from('places').insert([
         {
-          ...formData,
+          name: formData.name,
+          description: formData.description,
+          story: formData.story || null,
+          category_id: formData.category_id,
           latitude: formData.latitude ? parseFloat(formData.latitude) : null,
           longitude: formData.longitude ? parseFloat(formData.longitude) : null,
+          timings: formData.timings || null,
+          ticket_price: formData.ticket_price || null,
+          distance_from_center: formData.distance_from_center || null,
+          must_visit: formData.must_visit,
+          trending: formData.trending,
+          unesco: formData.unesco,
+          status: formData.status,
           images: images,
           videos: videos,
           image_url: images.length > 0 ? images[0] : null,
+          // Pack address fields into JSONB
+          address: {
+            full: formData.address,
+            city: formData.city,
+            state: formData.state,
+            pincode: formData.pincode
+          }
         },
       ]);
 
@@ -268,6 +289,48 @@ export default function AddPlacePage() {
                     readOnly
                     className="bg-muted"
                   />
+                </div>
+              </div>
+
+              {/* Address Fields */}
+              <div className="mt-4 grid gap-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="address">Full Address</Label>
+                  <Input
+                    id="address"
+                    placeholder="e.g., 123 Main St, Patna"
+                    value={formData.address}
+                    onChange={handleChange}
+                  />
+                </div>
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                  <div className="grid gap-2">
+                    <Label htmlFor="city">City</Label>
+                    <Input
+                      id="city"
+                      placeholder="e.g., Patna"
+                      value={formData.city}
+                      onChange={handleChange}
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="state">State</Label>
+                    <Input
+                      id="state"
+                      placeholder="e.g., Bihar"
+                      value={formData.state}
+                      onChange={handleChange}
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="pincode">Pincode</Label>
+                    <Input
+                      id="pincode"
+                      placeholder="e.g., 800001"
+                      value={formData.pincode}
+                      onChange={handleChange}
+                    />
+                  </div>
                 </div>
               </div>
             </div>
