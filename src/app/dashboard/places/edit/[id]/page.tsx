@@ -1,16 +1,9 @@
 'use client';
 
-import { useEffect, useState, use } from 'react';
+import { useState, useEffect, use } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
 import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -21,11 +14,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
-import Link from 'next/link';
 import { Separator } from '@/components/ui/separator';
 import { X } from 'lucide-react';
 import Image from 'next/image';
+import Link from 'next/link';
+import { TicketPricingEditor } from '@/components/places/TicketPricingEditor';
+import { TimingsEditor } from '@/components/places/TimingsEditor';
 
 export default function EditPlacePage(props: { params: Promise<{ id: string }> }) {
   const params = use(props.params);
@@ -44,7 +46,7 @@ export default function EditPlacePage(props: { params: Promise<{ id: string }> }
     latitude: '',
     longitude: '',
     timings: '',
-    ticket_price: '',
+    ticket_pricing: null as any,
     distance_from_center: '',
     address: '',
     city: '',
@@ -100,7 +102,9 @@ export default function EditPlacePage(props: { params: Promise<{ id: string }> }
         latitude: data.latitude?.toString() || '',
         longitude: data.longitude?.toString() || '',
         timings: data.timings || '',
-        ticket_price: data.ticket_price || '',
+
+        ticket_pricing: data.ticket_pricing || null,
+
         distance_from_center: data.distance_from_center || '',
 
         // Unpack Address JSONB
@@ -132,6 +136,14 @@ export default function EditPlacePage(props: { params: Promise<{ id: string }> }
 
   const handleSelectChange = (value: string) => {
     setFormData((prev) => ({ ...prev, category_id: value }));
+  };
+
+  const handleTicketPricingChange = (val: any) => {
+    setFormData(prev => ({ ...prev, ticket_pricing: val }));
+  };
+
+  const handleTimingsChange = (val: string) => {
+    setFormData(prev => ({ ...prev, timings: val }));
   };
 
   const handleCheckboxChange = (checked: boolean, id: string) => {
@@ -199,7 +211,11 @@ export default function EditPlacePage(props: { params: Promise<{ id: string }> }
           latitude: formData.latitude ? parseFloat(formData.latitude) : null,
           longitude: formData.longitude ? parseFloat(formData.longitude) : null,
           timings: formData.timings,
-          ticket_price: formData.ticket_price,
+
+          ticket_pricing: formData.ticket_pricing,
+          // ticket_price is deprecated but if we wanted backward compat we might serialize it differently or just ignore it.
+          // Let's ignore ticket_price column updates.
+
           distance_from_center: formData.distance_from_center,
           must_visit: formData.must_visit,
           trending: formData.trending,
@@ -208,7 +224,6 @@ export default function EditPlacePage(props: { params: Promise<{ id: string }> }
           images: images,
           videos: videos,
           image_url: images.length > 0 ? images[0] : null,
-          // Pack Address JSONB
           address: {
             full: formData.address,
             city: formData.city,
@@ -260,14 +275,7 @@ export default function EditPlacePage(props: { params: Promise<{ id: string }> }
             <Label htmlFor="name">Place Name</Label>
             <Input id="name" value={formData.name} onChange={handleChange} />
           </div>
-          {/* <div className="grid gap-2">
-            <Label htmlFor="description">Description</Label>
-            <Textarea
-              id="description"
-              value={formData.description}
-              onChange={handleChange}
-            />
-          </div> */}
+
           <div className="grid gap-2">
             <Label htmlFor="story">Story Description</Label>
             <Textarea
@@ -411,18 +419,26 @@ export default function EditPlacePage(props: { params: Promise<{ id: string }> }
           </CardDescription>
         </CardHeader>
         <CardContent className="grid gap-6">
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            <div className="grid gap-2">
-              <Label htmlFor="timings">Timings</Label>
-              <Input id="timings" value={formData.timings} onChange={handleChange} />
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            <div className="grid gap-2 col-span-1">
+              <Label>Timings</Label>
+              <TimingsEditor
+                value={formData.timings}
+                onChange={handleTimingsChange}
+              />
             </div>
-            <div className="grid gap-2">
-              <Label htmlFor="ticket_price">Ticket Price</Label>
-              <Input id="ticket_price" value={formData.ticket_price} onChange={handleChange} />
-            </div>
-            <div className="grid gap-2">
+
+            <div className="grid gap-2 col-span-1">
               <Label htmlFor="distance_from_center">Distance from Center</Label>
               <Input id="distance_from_center" value={formData.distance_from_center} onChange={handleChange} />
+            </div>
+
+            <div className="grid gap-2 col-span-full">
+              <Label>Ticket Pricing</Label>
+              <TicketPricingEditor
+                value={formData.ticket_pricing}
+                onChange={handleTicketPricingChange}
+              />
             </div>
           </div>
           <Separator />

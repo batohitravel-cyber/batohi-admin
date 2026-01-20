@@ -70,6 +70,7 @@ type Place = {
   latitude: number | null;
   longitude: number | null;
   address: any | null; // JSONB
+  ticket_pricing: any | null; // JSONB
 };
 
 export default function PlacesPage() {
@@ -474,7 +475,24 @@ export default function PlacesPage() {
                   </div>
                   <div className="col-span-2 sm:col-span-1">
                     <h4 className="font-semibold text-sm text-foreground mb-1">Ticket Price</h4>
-                    <p className="text-sm text-muted-foreground">{selectedPlace.ticket_price || 'N/A'}</p>
+                    {selectedPlace.ticket_pricing ? (
+                      <div className="text-sm text-muted-foreground space-y-1">
+                        {selectedPlace.ticket_pricing.pricing_type === 'fixed' ? (
+                          <span>Fixed: {selectedPlace.ticket_pricing.prices?.[0]?.price} {selectedPlace.ticket_pricing.currency}</span>
+                        ) : (
+                          <ul className="list-disc list-inside">
+                            {selectedPlace.ticket_pricing.prices?.map((p: any, idx: number) => (
+                              <li key={idx}>
+                                {p.label}: {p.price} {selectedPlace.ticket_pricing.currency}
+                                {p.age_range && <span className="text-xs ml-1">({p.age_range})</span>}
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+                    ) : (
+                      <p className="text-sm text-muted-foreground">{selectedPlace.ticket_price || 'N/A'}</p>
+                    )}
                   </div>
                   <div className="col-span-2 sm:col-span-1">
                     <h4 className="font-semibold text-sm text-foreground mb-1">Distance from Center</h4>

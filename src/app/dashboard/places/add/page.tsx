@@ -4,13 +4,6 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
 import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -21,16 +14,25 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
-import Link from 'next/link';
 import { Separator } from '@/components/ui/separator';
 import { X } from 'lucide-react';
 import Image from 'next/image';
+import Link from 'next/link';
 import dynamic from 'next/dynamic';
+import { TicketPricingEditor } from '@/components/places/TicketPricingEditor';
+import { TimingsEditor } from '@/components/places/TimingsEditor';
 
 const LocationPicker = dynamic(() => import('@/components/map/LocationPicker'), {
   ssr: false,
-  loading: () => <div className="h-[400px] w-full bg-muted animate-pulse rounded-md flex items-center justify-center">Loading Map...</div>
+  loading: () => <div className="h-[300px] w-full bg-muted animate-pulse rounded-md" />
 });
 
 type Category = {
@@ -50,7 +52,7 @@ export default function AddPlacePage() {
     latitude: '',
     longitude: '',
     timings: '',
-    ticket_price: '',
+    ticket_pricing: null as any, // Changed from string ticket_price to object
     distance_from_center: '',
     address: '',
     city: '',
@@ -67,25 +69,36 @@ export default function AddPlacePage() {
   const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
-    const fetchCategories = async () => {
+    fetchCategories();
+  }, []);
+
+  const fetchCategories = async () => {
+    try {
       const { data, error } = await supabase
         .from('categories')
         .select('id, name')
-        .order('name', { ascending: true });
+        .eq('is_active', true)
+        .order('name');
 
-      if (error) {
-        console.error('Error fetching categories:', error);
-        return;
-      }
+      if (error) throw error;
       setCategories(data || []);
-    };
-
-    fetchCategories();
-  }, []);
+    } catch (error: any) {
+      console.error('Error fetching categories:', error);
+    }
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { id, value } = e.target;
     setFormData((prev) => ({ ...prev, [id]: value }));
+  };
+
+  // New handlers for custom editors
+  const handleTicketPricingChange = (val: any) => {
+    setFormData(prev => ({ ...prev, ticket_pricing: val }));
+  };
+
+  const handleTimingsChange = (val: string) => {
+    setFormData(prev => ({ ...prev, timings: val }));
   };
 
   const handleSelectChange = (value: string) => {
@@ -162,7 +175,10 @@ export default function AddPlacePage() {
           latitude: formData.latitude ? parseFloat(formData.latitude) : null,
           longitude: formData.longitude ? parseFloat(formData.longitude) : null,
           timings: formData.timings || null,
-          ticket_price: formData.ticket_price || null,
+
+          // Use ticket_pricing JSONB
+          ticket_pricing: formData.ticket_pricing || null,
+
           distance_from_center: formData.distance_from_center || null,
           must_visit: formData.must_visit,
           trending: formData.trending,
@@ -338,7 +354,6 @@ export default function AddPlacePage() {
         </CardContent>
       </Card>
 
-      {/* Media Section */}
       <Card>
         <CardHeader>
           <CardTitle>Media</CardTitle>
@@ -396,7 +411,6 @@ export default function AddPlacePage() {
         </CardContent>
       </Card>
 
-      {/* Quick Facts & Labels */}
       <Card>
         <CardHeader>
           <CardTitle>Quick Facts & Labels</CardTitle>
@@ -405,26 +419,16 @@ export default function AddPlacePage() {
           </CardDescription>
         </CardHeader>
         <CardContent className="grid gap-6">
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            <div className="grid gap-2">
-              <Label htmlFor="timings">Timings</Label>
-              <Input
-                id="timings"
-                placeholder="e.g., 10 AM - 5 PM"
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            <div className="grid gap-2 col-span-1">
+              <Label>Timings</Label>
+              <TimingsEditor
                 value={formData.timings}
-                onChange={handleChange}
+                onChange={handleTimingsChange}
               />
             </div>
-            <div className="grid gap-2">
-              <Label htmlFor="ticket_price">Ticket Price</Label>
-              <Input
-                id="ticket_price"
-                placeholder="e.g., ₹20 for adults"
-                value={formData.ticket_price}
-                onChange={handleChange}
-              />
-            </div>
-            <div className="grid gap-2">
+
+            <div className="grid gap-2 col-span-1">
               <Label htmlFor="distance_from_center">Distance from Center</Label>
               <Input
                 id="distance_from_center"
@@ -433,8 +437,18 @@ export default function AddPlacePage() {
                 onChange={handleChange}
               />
             </div>
+
+            <div className="grid gap-2 col-span-full">
+              <Label>Ticket Pricing</Label>
+              <TicketPricingEditor
+                value={formData.ticket_pricing}
+                onChange={handleTicketPricingChange}
+              />
+            </div>
           </div>
+
           <Separator />
+
           <div className="grid gap-4">
             <Label>Special Labels</Label>
             <div className="flex items-center gap-4">
