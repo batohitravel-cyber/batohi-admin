@@ -1,0 +1,138 @@
+BATOHI ADMIN PANEL - USER FLOW DOCUMENTATION
+========================================
+
+This document outlines the complete user flow for the Batohi Admin Panel, effectively guiding a user from the initial login screen through the entire dashboard ecosystem.
+
+1. AUTHENTICATION FLOW
+----------------------
+
+1.1. Login Request
+   - Navigate to `/login`.
+   - The user is presented with the "Batohi Admin Pro" login card.
+   - **Step 1:** Enter Email (e.g., admin@batohi.com).
+   - **Step 2:** Enter Password.
+   - **Step 3:** Click "Login".
+   - *Note:* There is a "Forgot your password?" link available for password recovery.
+
+1.2. Two-Factor Authentication (2FA)
+   - **Scenario A: 2FA is already enabled**
+     - The user is redirected to the 2FA verification screen.
+     - Enter the 6-digit code from the authenticator app.
+     - Click "Verify".
+   - **Scenario B: 2FA is not enabled (First time setup)**
+     - The system prompts "Enable Two-Factor Authentication".
+     - Option 1: Click "Set up 2FA" to generate a QR code. Scan it with an authenticator app, enter the code, and verify.
+     - Option 2: Click "Skip for now" to bypass 2FA setup (if allowed policy-wise).
+   - **Scenario C: No 2FA required**
+     - Direct access to the dashboard.
+
+1.3. Success
+   - Upon successful verification, the system stores `isAdminLoggedIn` and `adminEmail` in LocalStorage.
+   - The user is redirected to `/dashboard`.
+
+2. DASHBOARD OVERVIEW
+---------------------
+Upon logging in, the user lands on the Realtime Dashboard.
+
+2.1. Layout Structure
+   - **Sidebar (Left):** Persistent navigation menu containing all modules. Collapsible via a button.
+   - **Header (Top):** Contains global actions (implied from typical layouts, often profile or notifications).
+   - **Main Content Area:** Displays the active page content.
+
+2.2. Realtime Dashboard Page (`/dashboard`)
+   - **Header:** displays "Realtime Dashboard" and a welcome message.
+   - **Key Statistics Cards:**
+     - Total Users (Realtime count)
+     - Admins (Active count)
+     - Notifications (Unread count)
+     - Active Alerts (Safety Issues)
+   - **Charts & Visuals:**
+     - Activity Overview (Chart showing user trends).
+     - Data Distribution (Pie chart showing volume by category: Users, Admins, Stories, Alerts, etc.).
+   - **Quick Navigation:**
+     - Grid of cards for fast access to common tasks:
+       - Manage Users
+       - Manage Admins
+       - Notifications
+       - Safety Alerts
+       - Add Place
+       - Upload Story
+       - Add Festival
+       - Reviews
+
+3. EXPLORING THE PANEL (SIDEBAR MODULES)
+----------------------------------------
+The sidebar is organized into sections: Dashboard, Content, and Platform.
+
+3.1. CONTENT MANAGEMENT
+   - **Places** (`/dashboard/places`)
+     - **All Places:** View list of verified/unverified locations.
+     - **Add New Place:** Form to create a new destination entry.
+     - **Categories:** Manage place categories (e.g., Religious, Nature).
+     - **Media Manager:** centralized gallery or file management.
+     - **Place Alerts:** Manage specific alerts related to locations.
+
+   - **Hotels** (`/dashboard/hotels`)
+     - **All Hotels:** Directory of partner hotels.
+     - **Add Hotel:** Onboard a new hotel property.
+     - **Categories:** Manage hotel classifications (e.g., Luxury, Budget).
+
+   - **Vehicles** (`/dashboard/vehicles`)
+     - **All Vehicles:** Fleet management list.
+     - **Add Vehicle:** Register a new vehicle.
+     - **Drivers:** Manage driver profiles.
+     - **Add Driver:** Onboard a new driver.
+
+   - **Audio Stories** (`/dashboard/audio`)
+     - **All Stories:** Library of audio guides/stories.
+     - **Upload Story:** Interface to upload audio files and metadata.
+
+   - **Restaurants** (`/dashboard/restaurants`)
+     - **All Restaurants:** Directory of dining spots.
+     - **Add Restaurant:** Add a new restaurant listing.
+     - **Festival Foods:** Special section for seasonal or festival-specific culinary items.
+
+   - **Festivals** (`/dashboard/festivals`)
+     - **All Festivals:** Calendar/List of cultural events.
+     - **Add Festival:** Create a new event entry.
+
+   - **Reviews** (`/dashboard/reviews`)
+     - **Review Moderation:** Approve or reject user-submitted reviews.
+     - **Spam Filter:** Review automatically flagged content.
+
+3.2. PLATFORM MANAGEMENT
+   - **Users** (`/dashboard/users`)
+     - **User List:** Database of registered mobile app users.
+     - **User Reports:** View reports filed against users or by users.
+
+   - **Admins** (`/dashboard/admins`)
+     - **Admin Management:** List of dashboard operators.
+     - **Roles & Permissions:** Configure access levels (Super Admin, Editor, etc.).
+     - **Security Settings:** Global security configurations.
+
+   - **Ask Batohi AI** (`/dashboard/ai`)
+     - AI Interface for internal queries or content generation assistance.
+
+   - **Notifications** (`/dashboard/notifications`)
+     - **All Notifications:** System-wide alerts and push notification management.
+
+3.3. SYSTEM & UTILITIES
+   - **Safety** (`/dashboard/safety`)
+     - Management of SOS alerts and safety protocols.
+
+   - **System** (`/dashboard/system`)
+     - System health, logs, or technical configurations.
+
+4. USER SETTINGS & SESSION
+--------------------------
+Located at the bottom of the sidebar.
+
+4.1. Settings (`/dashboard/settings`)
+   - Personal account settings.
+   - Toggle 2FA settings.
+   - Update profile information.
+
+4.2. Logout
+   - Click "Logout" in the sidebar footer.
+   - Session is cleared (LocalStorage `isAdminLoggedIn` removed).
+   - Redirected back to `/login`.
